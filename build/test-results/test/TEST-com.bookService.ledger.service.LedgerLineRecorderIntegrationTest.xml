@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bookService.ledger.service.LedgerLineRecorderIntegrationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-07-14T20:18:03.145Z" hostname="DESKTOP-OTIVGL5" time="1.723">
+  <properties/>
+  <testcase name="동시성/멱등: 같은 (주문,판매자,상품) 줄이 20번 동시 전달돼도 정확히 1회만 기록된다" classname="com.bookService.ledger.service.LedgerLineRecorderIntegrationTest" time="1.608"/>
+  <testcase name="같은 판매자의 서로 다른 상품 2건 — 합산하지 않고 각각 독립된 분개로 기록된다" classname="com.bookService.ledger.service.LedgerLineRecorderIntegrationTest" time="0.046"/>
+  <testcase name="멱등성: 같은 (주문,판매자,상품) 줄을 두 번 처리해도 한 번만 기록된다" classname="com.bookService.ledger.service.LedgerLineRecorderIntegrationTest" time="0.034"/>
+  <testcase name="정상 기록: CREDIT은 REVENUE로, DEBIT은 ITEM_BUYER로 같은 금액이 쌍으로 기록된다" classname="com.bookService.ledger.service.LedgerLineRecorderIntegrationTest" time="0.031"/>
+  <system-out><![CDATA[05:16:54.075 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.bookService.ledger.service.LedgerLineRecorderIntegrationTest]: LedgerLineRecorderIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+05:16:54.233 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.bookService.ledger.LedgerWorkerApplication for test class com.bookService.ledger.service.LedgerLineRecorderIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.8)
+
+2026-07-15T05:16:54.909+09:00  INFO 12460 --- [ledger-worker] [    Test worker] .b.l.s.LedgerLineRecorderIntegrationTest : Starting LedgerLineRecorderIntegrationTest using Java 21.0.8 with PID 12460 (started by User in F:\Project\movedFromC\core\ledger-worker)
+2026-07-15T05:16:54.911+09:00  INFO 12460 --- [ledger-worker] [    Test worker] .b.l.s.LedgerLineRecorderIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-07-15T05:16:56.015+09:00  INFO 12460 --- [ledger-worker] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-15T05:16:56.094+09:00  INFO 12460 --- [ledger-worker] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 64 ms. Found 3 JPA repository interfaces.
+2026-07-15T05:16:56.685+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-15T05:16:56.774+09:00  INFO 12460 --- [ledger-worker] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-07-15T05:16:56.814+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-15T05:16:57.234+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-15T05:16:57.273+09:00  INFO 12460 --- [ledger-worker] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-15T05:16:57.474+09:00  INFO 12460 --- [ledger-worker] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7b29cdea
+2026-07-15T05:16:57.476+09:00  INFO 12460 --- [ledger-worker] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-15T05:16:57.564+09:00  INFO 12460 --- [ledger-worker] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.41
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-15T05:16:58.559+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-15T05:16:58.563+09:00  INFO 12460 --- [ledger-worker] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-15T05:16:59.980+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [192.168.0.6:5672]
+2026-07-15T05:17:21.017+09:00  INFO 12460 --- [ledger-worker] [    Test worker] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection timed out: getsockopt
+2026-07-15T05:17:21.024+09:00  INFO 12460 --- [ledger-worker] [ntContainer#0-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [192.168.0.6:5672]
+2026-07-15T05:17:42.075+09:00 ERROR 12460 --- [ledger-worker] [ntContainer#0-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
+
+org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection timed out: getsockopt
+	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:632) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2262) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2235) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2215) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1972) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1936) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1481) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1322) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+Caused by: java.net.ConnectException: Connection timed out: getsockopt
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:549) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
+	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.22.0.jar:5.22.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.22.0.jar:5.22.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.22.0.jar:5.22.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:678) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:647) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:593) ~[spring-rabbit-3.2.6.jar:3.2.6]
+	... 12 common frames omitted
+
+2026-07-15T05:17:42.083+09:00  INFO 12460 --- [ledger-worker] [ntContainer#0-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [192.168.0.6:5672]
+2026-07-15T05:18:03.136+09:00  INFO 12460 --- [ledger-worker] [    Test worker] .b.l.s.LedgerLineRecorderIntegrationTest : Started LedgerLineRecorderIntegrationTest in 68.684 seconds (process running for 70.288)
+2026-07-15T05:18:04.136+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-17] c.b.ledger.service.LedgerLineRecorder    : 장부 기록 완료: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent, amount=1000
+2026-07-15T05:18:04.150+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-16] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.155+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-7] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.159+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-18] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.165+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-14] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.170+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-8] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.174+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-1] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.178+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-10] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.183+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-13] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.187+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-20] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.191+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-4] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [pool-3-thread-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [ool-3-thread-19] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [pool-3-thread-3] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [ool-3-thread-12] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [pool-3-thread-3] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [ool-3-thread-12] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [ool-3-thread-15] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [ool-3-thread-15] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [ool-3-thread-11] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [pool-3-thread-5] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [ool-3-thread-11] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.608+09:00  WARN 12460 --- [ledger-worker] [pool-3-thread-6] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.609+09:00  WARN 12460 --- [ledger-worker] [pool-3-thread-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [ool-3-thread-19] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.610+09:00 ERROR 12460 --- [ledger-worker] [pool-3-thread-6] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.610+09:00 ERROR 12460 --- [ledger-worker] [pool-3-thread-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [pool-3-thread-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.609+09:00 ERROR 12460 --- [ledger-worker] [pool-3-thread-5] o.h.engine.jdbc.spi.SqlExceptionHelper   : Duplicate entry 'ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1-4-isbn-co' for key 'ledger_transactions.uk_ledger_tx_order_seller_product'
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-6] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-15] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-19] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-12] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [ool-3-thread-11] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-3] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-9] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-5] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.625+09:00  INFO 12460 --- [ledger-worker] [pool-3-thread-2] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 동시 중복 전달 skip: orderId=ledger-test-order-1d700c98-5df2-4e84-bb8b-261fa551fca1, sellerId=4, productId=isbn-concurrent
+2026-07-15T05:18:04.772+09:00  INFO 12460 --- [ledger-worker] [    Test worker] c.b.ledger.service.LedgerLineRecorder    : 장부 기록 완료: orderId=ledger-test-order-f5e6489c-df10-4163-94f9-22a6f916d8aa, sellerId=3, productId=isbn-a, amount=3000
+2026-07-15T05:18:04.788+09:00  INFO 12460 --- [ledger-worker] [    Test worker] c.b.ledger.service.LedgerLineRecorder    : 장부 기록 완료: orderId=ledger-test-order-f5e6489c-df10-4163-94f9-22a6f916d8aa, sellerId=3, productId=isbn-b, amount=4000
+2026-07-15T05:18:04.818+09:00  INFO 12460 --- [ledger-worker] [    Test worker] c.b.ledger.service.LedgerLineRecorder    : 장부 기록 완료: orderId=ledger-test-order-700f911e-26e4-42b8-8d00-b69e72c000ce, sellerId=2, productId=isbn-002, amount=5000
+2026-07-15T05:18:04.823+09:00  INFO 12460 --- [ledger-worker] [    Test worker] c.b.ledger.service.LedgerLineRecorder    : 이미 기록된 장부 줄 ? 중복 전달 skip: orderId=ledger-test-order-700f911e-26e4-42b8-8d00-b69e72c000ce, sellerId=2, productId=isbn-002
+2026-07-15T05:18:04.853+09:00  INFO 12460 --- [ledger-worker] [    Test worker] c.b.ledger.service.LedgerLineRecorder    : 장부 기록 완료: orderId=ledger-test-order-a266aa91-4edf-4cd8-8407-4f6c663ce1a0, sellerId=1, productId=isbn-001, amount=12000
+]]></system-out>
+  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\User\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.15.11\a38b16385e867f59a641330f0362ebe742788ed8\byte-buddy-agent-1.15.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
