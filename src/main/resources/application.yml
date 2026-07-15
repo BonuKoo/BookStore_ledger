@@ -23,10 +23,13 @@ spring:
     username: coreapp
     password: 1234
     virtual-host: core_vhost
+    publisher-confirm-type: correlated
+    publisher-returns: true
     listener:
       simple:
-        # M3 범위: 자동 ack. 수동 ack + 자동 DLQ 배선은 Phase 4에서 추가.
-        acknowledge-mode: auto
+        # Phase 4: manual ack — 실제 acknowledge mode는 RabbitMqConfig의
+        # rabbitListenerContainerFactory 빈이 결정한다(MANUAL 고정).
+        acknowledge-mode: manual
 
 management:
   endpoints:
