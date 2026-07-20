@@ -23,13 +23,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LedgerRecordingService {
 
+    // 판매자가 지정되지 않은 상품(core-spa Item.UNASSIGNED_SELLER_ID)과 동일한 값 —
+    // 프로듀서가 sellerId를 못 채워 보낸 메시지(구버전 데이터 등)도 크래시 대신 이 판매자로 기록한다.
+    private static final long UNASSIGNED_SELLER_ID = 0L;
+
     private final LedgerLineRecorder ledgerLineRecorder;
 
     public LedgerCompletedMessage record(PaymentEventMessage message) {
         String orderId = String.valueOf(message.getPayload().get("orderId"));
 
         for (Map<String, Object> item : items(message.getPayload())) {
-            Long sellerId = ((Number) item.get("sellerId")).longValue();
+            Long sellerId = toSellerId(item.get("sellerId"));
             String productId = String.valueOf(item.get("productId"));
             BigDecimal amount = toBigDecimal(item.get("amount"));
 
@@ -49,6 +53,10 @@ public class LedgerRecordingService {
     private List<Map<String, Object>> items(Map<String, Object> payload) {
         List<Map<String, Object>> items = (List<Map<String, Object>>) payload.get("items");
         return items == null ? List.of() : items;
+    }
+
+    private Long toSellerId(Object sellerId) {
+        return sellerId instanceof Number number ? number.longValue() : UNASSIGNED_SELLER_ID;
     }
 
     private BigDecimal toBigDecimal(Object amount) {
