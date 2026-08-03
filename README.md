@@ -12,7 +12,7 @@
 | :--- | :--- |
 | Language / Framework | Java 21, Spring Boot 3.4.8 |
 | Messaging | RabbitMQ (Spring AMQP) — Manual ACK · DLX/DLQ · Publisher Confirms |
-| Persistence | Spring Data JPA, MySQL 8 (`ddl-auto: none`) |
+| Persistence | Spring Data JPA, MySQL 8 |
 | Build | Gradle |
 
 ---
