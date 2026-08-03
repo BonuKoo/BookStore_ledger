@@ -39,16 +39,6 @@ flowchart LR
 
 ---
 
-## 메시지 계약
-
-| 구분 | 값 |
-| :--- | :--- |
-| 구독 큐 | `ledger.recording.queue` (`payment.exchange` topic, routing key `payment.confirmed`) |
-| 발행 라우팅키 | `settlement.ledger.completed` → `settlement.ledger.completed.queue` (core-spa가 소비) |
-| DLX / DLQ | `payment.dlx` (direct) + `ledger.recording.queue.dlq`, `settlement.ledger.completed.queue.dlq` |
-| 수신 페이로드 | `{ messageType, payload{ orderId, items[{ sellerId, productId, amount, quantity }] }, metadata }` |
-| 발행 페이로드 | `{ payload: { orderId } }` |
-
 ## RabbitMQ 메시지 처리 및 설정 유의사항
 
 > ⚠️ 메시지 타입 역직렬화 전략
