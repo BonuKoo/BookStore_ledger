@@ -1,8 +1,8 @@
 # ledger-worker
 
 > core-spa의 **결제 확정 이벤트(`payment.confirmed`)를 구독**해, 주문의 각 항목(판매자·상품 줄)을
-> **복식부기 장부로 기록**하고, 기록이 끝나면 **완결 통지(`settlement.ledger.completed`)를 발행**하는 워커.
-> 분산 결제 파이프라인([core-spa](https://github.com/BonuKoo/BookStore))의 M3 구성요소이며 PC3에 배포된다.
+> **복식부기 장부로 기록**하고, 기록이 끝나면 **완결 통지를 발행**하는 워커.
+> 분산 결제 파이프라인([core-spa](https://github.com/BonuKoo/BookStore))의 구성요소
 
 ---
 
@@ -22,8 +22,8 @@ flowchart LR
     EX -.->|완결 통지| CMP[core-spa<br/>PaymentCompletionListener]
 ```
 
-한 건의 `payment.confirmed`를 알림·재고차감·정산 워커와 **독립적으로 팬아웃 소비**한다. 장부는 판매자별로
-합산하지 않고 **항목(판매자-상품) 단위로 감사 추적성**을 남기는 것이 정산 워커와의 설계 차이다.
+한 건의 `payment.confirmed`를 알림·재고차감·정산 워커와 **독립적으로 팬아웃 소비**한다.
+장부는 판매자별로 합산하지 않고 **항목 (판매자-상품) 단위로 감사 추적성**을 남기는 것이 정산 워커와의 설계 차이다.
 
 ---
 
@@ -37,10 +37,10 @@ flowchart LR
 | 수신 페이로드 | `{ messageType, payload{ orderId, items[{ sellerId, productId, amount, quantity }] }, metadata }` |
 | 발행 페이로드 | `{ payload: { orderId } }` |
 
-메시지 DTO는 core-spa와 클래스를 공유하지 않고 **JSON 스키마만 맞춘다**(별도 배포 단위 PC1/PC3).
+
 프로듀서가 실어보내는 `__TypeId__` 헤더는 이 프로젝트에 없는 클래스라, 타입 매퍼를 `INFERRED`로 두어
 `@RabbitListener` 파라미터 타입으로만 역직렬화한다. DLX/DLQ 인자는 core-spa·다른 워커의 선언과
-**한 글자도 다르면 안 된다**(불일치 시 RabbitMQ가 큐 재선언을 406 PRECONDITION_FAILED로 거부).
+**한 글자도 다르면 안 된다**
 
 ---
 
