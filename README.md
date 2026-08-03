@@ -6,7 +6,19 @@
 
 ---
 
-## 역할 한눈에
+## 기술 스택
+
+| 구분 | 기술 |
+| :--- | :--- |
+| Language / Framework | Java 21, Spring Boot 3.4.8 |
+| Messaging | RabbitMQ (Spring AMQP) — Manual ACK · DLX/DLQ · Publisher Confirms |
+| Persistence | Spring Data JPA, MySQL 8 (`ddl-auto: none`) |
+| Build | Gradle |
+
+---
+
+
+## 역할
 
 ```mermaid
 flowchart LR
@@ -60,16 +72,6 @@ flowchart LR
 
 ---
 
-## 기술 스택
-
-| 구분 | 기술 |
-| :--- | :--- |
-| Language / Framework | Java 21, Spring Boot 3.4.8 |
-| Messaging | RabbitMQ (Spring AMQP) — Manual ACK · DLX/DLQ · Publisher Confirms |
-| Persistence | Spring Data JPA, MySQL 8 (`ddl-auto: none`) |
-| Build | Gradle |
-
----
 
 ## 로컬 실행
 
