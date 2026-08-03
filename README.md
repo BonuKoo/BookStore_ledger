@@ -1,8 +1,8 @@
 # ledger-worker
 
-> core-spa의 **결제 확정 이벤트를 구독**해, 주문의 각 항목(판매자·상품 줄)을
-> **복식부기 장부로 기록**하고, 기록이 끝나면 **완결 통지를 발행**하는 워커.
-> 분산 결제 파이프라인([core-spa](https://github.com/BonuKoo/BookStore))의 구성요소
+> core-spa가 발행하는 결제 확정 이벤트를 받아, 주문의 각 항목(판매자-상품 줄)을
+> 복식부기 장부로 기록하고, 다 기록하면 완결 통지를 되쏘는 워커.
+> 분산 결제 파이프라인([core-spa](https://github.com/BonuKoo/BookStore))의 구성요소.
 
 ---
 
@@ -11,7 +11,7 @@
 | 구분 | 기술 |
 | :--- | :--- |
 | Language / Framework | Java 21, Spring Boot 3.4.8 |
-| Messaging | RabbitMQ (Spring AMQP) — Manual ACK · DLX/DLQ · Publisher Confirms |
+| Messaging | RabbitMQ (Spring AMQP), Manual ACK, DLX/DLQ, Publisher Confirms |
 | Persistence | Spring Data JPA, MySQL 8 |
 | Build | Gradle |
 
@@ -22,7 +22,7 @@
 ```mermaid
 flowchart LR
     EX{{"payment.exchange (topic)<br/>PC2 브로커"}}
-    subgraph LW ["ledger-worker · PC3"]
+    subgraph LW ["ledger-worker (PC3)"]
         L[LedgerListener] --> S[LedgerRecordingService<br/>항목별 루프]
         S --> R[LedgerLineRecorder<br/>줄 단위 @Transactional]
         R --> DB[(MySQL core2_spa<br/>ledger_transactions / ledger_entries)]
@@ -33,8 +33,9 @@ flowchart LR
     EX -.->|완결 통지| CMP[core-spa<br/>PaymentCompletionListener]
 ```
 
-`payment.confirmed`를 알림·재고차감·정산 워커와 **독립적으로 팬아웃 소비**한다.
-장부는 판매자별로 합산하지 않고 **항목 (판매자-상품) 단위로 감사 추적성**을 남긴다.
+같은 `payment.confirmed` 하나를 알림, 재고차감, 정산 워커가 각자 자기 큐로 받아 간다(topic 팬아웃).
+이 워커가 맡은 건 장부다. 정산 워커가 판매자별로 금액을 합산하는 것과 달리, 장부는 항목을 줄 단위로
+그대로 남긴다. 나중에 감사할 때 주문을 한 줄씩 되짚을 수 있어야 하기 때문이다.
 
 ---
 
@@ -48,25 +49,28 @@ flowchart LR
 | 수신 페이로드 | `{ messageType, payload{ orderId, items[{ sellerId, productId, amount, quantity }] }, metadata }` |
 | 발행 페이로드 | `{ payload: { orderId } }` |
 
-
-프로듀서가 실어보내는 `__TypeId__` 헤더는 이 프로젝트에 없는 클래스라, 타입 매퍼를 `INFERRED`로 두어
-`@RabbitListener` 파라미터 타입으로만 역직렬화한다. DLX/DLQ 인자는 core-spa·다른 워커의 선언과
-**한 글자도 다르면 안 된다**
-
----
-
-## 신뢰성 · 정합성 전략
-
-- **Manual ACK** — 리스너가 성공 시 `basicAck`, 처리 실패 시 `basicNack(requeue=false)`로 즉시 DLQ 격리.
-  무한 재전달 루프를 원천 차단한다.
-- **멱등 소비** — `ledger_transactions(order_id, seller_id, product_id)` UNIQUE 위에
-  사전 `exists` 확인 + `saveAndFlush` + `DataIntegrityViolationException` 방어의 이중 가드. 중복 전달돼도
-  분개가 두 번 기록되지 않는다.
-- **줄 단위 독립 트랜잭션** — `LedgerLineRecorder`가 항목 한 줄을 각각 `@Transactional`로 처리한다.
-  한 줄은 독립적인 회계 사실이므로 다른 줄의 이미 커밋된 분개를 되돌리지 않는다.
-- **복식부기 불변식** — 대변(REVENUE, CREDIT)과 차변(ITEM_BUYER, DEBIT)을 `DoubleLedgerEntry`로 명시.
-- **null-safe sellerId** — 프로듀서가 `sellerId`를 못 채운 구버전 메시지도 크래시 없이
-  `UNASSIGNED_SELLER_ID(0L)`로 귀속(과거 라이브 NPE의 근본 방어).
-- **Publisher Confirms / Returns** — 완결 통지 발행 시 broker nack·unroutable을 콜백으로 관측.
+프로듀서가 붙여 보내는 `__TypeId__` 헤더는 이 프로젝트에 없는 클래스를 가리키므로, 타입 매퍼를
+`INFERRED`로 두고 `@RabbitListener` 파라미터 타입으로만 역직렬화한다. DLX와 DLQ 인자는 core-spa나
+다른 워커가 선언한 값과 한 글자라도 다르면 안 된다. 다르면 RabbitMQ가 큐 재선언을 거부한다.
 
 ---
+
+## 신뢰성과 정합성
+
+리스너는 메시지를 직접 ack/nack 한다(auto-ack 아님). 성공하면 `basicAck`, 실패하면
+`basicNack(requeue=false)`로 곧장 DLQ에 넣는다. 재전달이 무한히 도는 걸 막으려는 배선이다.
+
+중복 전달은 `ledger_transactions(order_id, seller_id, product_id)` UNIQUE로 거른다. 흔한 경우는
+사전 `exists` 확인으로 빠르게 쳐내고, 동시에 들어온 중복은 `saveAndFlush`가 던지는
+`DataIntegrityViolationException`으로 잡는다. 같은 주문이 두 번 와도 분개는 한 번만 남는다.
+
+항목은 줄마다 별도 트랜잭션으로 기록한다(`LedgerLineRecorder`). 각 줄이 독립된 회계 사실이라,
+한 줄이 실패해도 이미 커밋된 다른 줄을 되돌릴 이유가 없다.
+
+복식부기 불변식은 도메인 객체에 남겼다. 대변(REVENUE, CREDIT)과 차변(ITEM_BUYER, DEBIT)을
+`DoubleLedgerEntry`가 짝지어 들고 있다.
+
+`sellerId`가 빠진 메시지가 와도 죽지 않는다. 구버전 데이터가 이 필드를 안 채우고 올 때가 있어,
+그런 항목은 `UNASSIGNED_SELLER_ID(0L)`로 귀속시킨다. 예전에 이 값이 null이라 라이브에서 NPE가 났었다.
+
+완결 통지를 발행할 때는 publisher confirms와 returns 콜백으로 broker nack이나 unroutable을 로그에 남긴다.
