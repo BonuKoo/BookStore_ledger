@@ -49,7 +49,10 @@ flowchart LR
 | 수신 페이로드 | `{ messageType, payload{ orderId, items[{ sellerId, productId, amount, quantity }] }, metadata }` |
 | 발행 페이로드 | `{ payload: { orderId } }` |
 
-프로듀서가 붙이는 `__TypeId__` 헤더는 여기 없는 클래스를 가리킨다. 그래서 타입 매퍼를 `INFERRED`로 두고
-`@RabbitListener` 파라미터 타입으로만 푼다. DLX와 DLQ 인자는 조심해야 한다. core-spa든 다른 워커든,
-한 글자만 달라도 RabbitMQ가 큐 재선언을 거부한다.
-
+> ⚠️ 프로듀서가 설정한 `__TypeId__` 헤더는 프로듀서 기준의 클래스 정보를 포함하며,
+> 컨슈머 서비스에는 해당 타입이 존재하지 않을 수 있다.
+> 따라서 컨슈머는 헤더 기반 타입 매핑을 사용하지 않고,
+> `INFERRED` 전략과 `@RabbitListener`의 파라미터 타입을 기준으로 메시지를 역직렬화해야 한다.
+>
+> 또한 DLX/DLQ 관련 인자는 모든 서비스에서 반드시 동일하게 유지되어야 한다.
+> 단 한 글자라도 불일치할 경우, RabbitMQ는 큐 재선언을 거부한다.
