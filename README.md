@@ -1,6 +1,6 @@
 # ledger-worker
 
-> core-spa의 **결제 확정 이벤트(`payment.confirmed`)를 구독**해, 주문의 각 항목(판매자·상품 줄)을
+> core-spa의 **결제 확정 이벤트를 구독**해, 주문의 각 항목(판매자·상품 줄)을
 > **복식부기 장부로 기록**하고, 기록이 끝나면 **완결 통지를 발행**하는 워커.
 > 분산 결제 파이프라인([core-spa](https://github.com/BonuKoo/BookStore))의 구성요소
 
@@ -17,8 +17,7 @@
 
 ---
 
-
-## 역할
+## 흐름
 
 ```mermaid
 flowchart LR
